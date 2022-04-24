@@ -1,0 +1,32 @@
+DATASET:
+
+  train_batch_size: 128
+
+
+
+
+
+MODEL:
+  inout_branch: False
+
+
+TRAIN:
+  maxlr: 1e-4
+
+  resume: True
+  resume_add: "/home/extend/hzx/VSGIA&ablation/damreplement/vsgia_35epoch.pth.tar"
+
+  initmodel: False
+  initmodel_add: ""
+
+  store: "/home/extend/hzx/VSGIA&ablation/damreplement"
+
+  save_intervel: 1
+
+  end_epoch: 71
+
+OTHER:
+
+  lossrec_every: 50
+
+  evalrec_every: 400

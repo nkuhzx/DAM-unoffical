@@ -13,7 +13,9 @@ MODEL:
 TRAIN:
   maxlr: 1e-4
 
-  resume: True
+  stage: 1
+
+  resume: False
   resume_add: "/home/extend/hzx/VSGIA&ablation/damreplement/vsgia_35epoch.pth.tar"
 
   initmodel: False

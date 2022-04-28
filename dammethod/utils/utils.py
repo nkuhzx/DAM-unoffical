@@ -135,6 +135,72 @@ def auc(gt_gaze,pred_heatmap,imsize):
 
     return auc_score
 
+
+def euclid_dist_videoatt(pred,target,type='avg'):
+
+    batch_dist=0.
+    sample_dist=0.
+
+    batch_size=pred.shape[0]
+    pred_H,pred_W=pred.shape[1:]
+
+
+    outside_counter=0
+
+
+    for b_idx in range(batch_size):
+
+        pred_x,pred_y=argmax_pts(pred[b_idx])
+        norm_p=np.array([pred_x,pred_y])/np.array([pred_W,pred_H])
+        # print(norm_p,target[b_idx])
+        # plt.imshow(pred[b_idx])
+        # plt.show()
+
+
+
+
+        b_target=target[b_idx]
+        if -1 in b_target:
+            outside_counter+=1
+
+            continue
+
+        valid_target=b_target[b_target!=-1].view(-1,2)
+        valid_target=valid_target.numpy()
+        sample_dist=valid_target-norm_p
+
+        sample_dist = np.sqrt(np.power(sample_dist[:, 0], 2) + np.power(sample_dist[:, 1], 2))
+
+
+
+        if type=='avg':
+
+            mean_gt_gaze = np.mean(valid_target, 0)
+
+            sample_avg_dist = mean_gt_gaze - norm_p
+            sample_avg_dist = np.sqrt(np.power(sample_avg_dist[0], 2) + np.power(sample_avg_dist[1], 2))
+
+            sample_dist=float(sample_avg_dist)
+        elif type=='min':
+            sample_dist=float(np.min(sample_dist))
+        else:
+            raise NotImplemented
+
+        batch_dist+=sample_dist
+
+    if batch_size!=outside_counter:
+
+        euclid_dist=batch_dist/(float(batch_size)-outside_counter)
+    else:
+        euclid_dist=0
+
+    valid_num=batch_size-outside_counter
+
+    return euclid_dist,valid_num
+
+def ap(label,pred):
+    return average_precision_score(label,pred)
+
 def multi_hot_targets(gaze_pts,out_res):
     w,h= out_res
     target_map=np.zeros((h,w))

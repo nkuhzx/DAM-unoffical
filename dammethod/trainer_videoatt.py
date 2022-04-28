@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 import numpy as np
-from dammethod.utils.utils import AverageMeter, MovingAverageMeter, euclid_dist,auc
+from dammethod.utils.utils import AverageMeter, MovingAverageMeter, euclid_dist_videoatt,auc,ap
 from tqdm import tqdm
 
 
@@ -18,6 +18,7 @@ class Trainer(object):
         # record train loss
         self.losses = MovingAverageMeter()
         self.l2losses=MovingAverageMeter()
+        self.inoutlosses=MovingAverageMeter()
         self.langlosses=MovingAverageMeter()
 
 
@@ -45,6 +46,9 @@ class Trainer(object):
 
         # reset recoder
         self.losses.reset()
+        self.l2losses.reset()
+        self.langlosses.reset()
+        self.inoutlosses.reset()
 
         self.eval_dist.reset()
         self.eval_mindist.reset()
@@ -55,9 +59,6 @@ class Trainer(object):
         pbar = tqdm(total=loader_capacity)
         for i, data in enumerate(self.trainloader, 0):
 
-            # for key,value in data.items():
-            #     print(key,torch.isnan(value).any(),torch.isinf(value).any())
-
             self.optimizer.zero_grad()
 
             opt.OTHER.global_step = opt.OTHER.global_step + 1
@@ -65,7 +66,6 @@ class Trainer(object):
             x_img,x_mmimg, x_face, x_leyeimg,x_reyeimg = data["img"],data["mmimg"], data["face"], data["l_eyeimg"],data["r_eyeimg"]
 
             x_ind,x_gzfield=data["indicator"],data["gazefield"]
-
 
             heatmap = data["gaze_heatmap"]
             gazevector=data["gaze_vector"]
@@ -97,27 +97,35 @@ class Trainer(object):
 
             pred_gvector=outs["gazevector"]
 
+            pred_inout=outs['inout']
+            pred_inout=pred_inout.squeeze()
+
             # heatmap loss
             l2_loss = self.criterion[0](pred_gheatmap, y_heatmap)
 
-            l2_loss = torch.mean(l2_loss, dim=1)
+            l2_loss=torch.mean(l2_loss,dim=1)
             l2_loss = torch.mean(l2_loss, dim=1)
 
-            # l2_loss = torch.mul(l2_loss, y_in_out)
-            l2_loss = torch.sum(l2_loss) / bs
+            l2_loss=torch.mul(l2_loss,y_in_out)
+
+            l2_loss = torch.sum(l2_loss) / torch.sum(y_in_out)
 
             # angle loss
             lang_loss=1-self.criterion[1](pred_gvector,y_gazevector)
+            lang_loss=torch.sum(lang_loss)/torch.sum(y_in_out)
             lang_loss=torch.sum(lang_loss)/bs
 
-            total_loss = l2_loss*10000+100*lang_loss
-            # print(l2_loss,lang_loss,total_loss)
+            # inout loss
+            inout_loss=self.criterion[2](pred_inout,y_in_out.squeeze())
+
+            total_loss=10000*l2_loss#+100*lang_loss+25*inout_loss
 
             total_loss.backward()
             self.optimizer.step()
 
             self.losses.update(total_loss.item())
             self.l2losses.update(l2_loss.item())
+            self.inoutlosses.update(inout_loss.item())
             self.langlosses.update(lang_loss.item())
 
             if i % opt.OTHER.lossrec_every == 0:
@@ -125,10 +133,10 @@ class Trainer(object):
 
                 pred_gheatmap = pred_gheatmap.squeeze(1)
                 pred_gheatmap = pred_gheatmap.data.cpu().numpy()
-                distrain_avg = euclid_dist(pred_gheatmap, gaze_value, type='avg')
+
+                distrain_avg,valid_num = euclid_dist_videoatt(pred_gheatmap, gaze_value, type='avg')
+
                 self.train_dist.update(distrain_avg)
-
-
 
             if (i % opt.OTHER.evalrec_every == 0 and i > 0):
 
@@ -136,6 +144,7 @@ class Trainer(object):
 
                 self.writer.add_scalar("Val_avg_dist", self.eval_dist.avg, global_step=opt.OTHER.global_step)
                 self.writer.add_scalar("Val_min_dist", self.eval_mindist.avg, global_step=opt.OTHER.global_step)
+                self.writer.add_scalar("Val_angle", self.eval_angle.avg, global_step=opt.OTHER.global_step)
                 self.writer.add_scalar("Val_ap", self.eval_ap.avg, global_step=opt.OTHER.global_step)
 
             pbar.set_description("Epoch: [{0}]".format(epoch))
@@ -146,6 +155,7 @@ class Trainer(object):
                              loss=self.losses.avg,
                              l2_loss=self.l2losses.avg,
                              ang_loss=self.langlosses.avg,
+                             inout_loss=self.inoutlosses.avg,
                              train_dist=self.train_dist.avg,
                              learning_rate=self.optimizer.param_groups[0]["lr"])
 
@@ -160,7 +170,11 @@ class Trainer(object):
 
         self.eval_dist.reset()
         self.eval_mindist.reset()
+        self.eval_angle.reset()
         self.eval_ap.reset()
+
+        label_inout_list=[]
+        pred_inout_list=[]
 
         for i, data in enumerate(self.valloader, 0):
 
@@ -171,6 +185,8 @@ class Trainer(object):
             x_ind, x_gzfield = data["indicator"], data["gazefield"]
 
             gazevector=data["gaze_vector"]
+
+            in_out=data["gaze_inside"]
             gaze_value = data["gaze_label"]
 
             img_size=data["img_size"]
@@ -187,33 +203,35 @@ class Trainer(object):
             bs = x_img.size(0)
             outs = self.model(x_img,x_mmimg,x_gzfield, x_face,x_leyeimg,x_reyeimg,x_ind)
 
-
             pred_heatmap = outs['heatmap']
             pred_heatmap = pred_heatmap.squeeze(1)
             pred_heatmap = pred_heatmap.data.cpu().numpy()
 
-            gt_gazevector=gazevector.to(self.device)
-            pred_gazevector=outs["gazevector"]
-            # pred_gazevector=pred_gazevector.squeeze()
-            # pred_gazevector=pred_gazevector.cpu().numpy()
+            pred_inout=outs['inout']
+            # pred_inout=self.sigmoid(pred_inout)
+            pred_inout=pred_inout.squeeze()
+            pred_inout=pred_inout.data.cpu().numpy()
+            in_out=in_out.squeeze().numpy()
 
-            distval = euclid_dist(pred_heatmap, gaze_value, type='avg')
-            mindistval=euclid_dist(pred_heatmap, gaze_value, type='min')
+            gt_gazevector=gazevector.to(self.device)
+            gt_inout=in_out.to(self.device)
+            pred_gazevector=outs["gazevector"]
+
+            disval,disval_num = euclid_dist_videoatt(pred_heatmap, gaze_value, type='avg')
+            mindistval,mindistval_num=euclid_dist_videoatt(pred_heatmap, gaze_value, type='min')
 
             cosine_value=self.criterion[1](pred_gazevector,gt_gazevector)
-            cosine_value=torch.sum(cosine_value)/bs
+            cosine_value=torch.sum(cosine_value)/torch.sum(gt_inout)
 
-            cosine_value=cosine_value.cpu().detach().cpu().numpy()
-            # cosine_value=pred_gazevector*gt_gazevector
-            # cosine_value=np.sum(cosine_value,axis=1)
-            # cosine_value=np.sum(cosine_value)/bs
+            label_inout_list.extend(in_out)
+            pred_inout_list.extend(pred_inout)
 
-            # auc_score=auc(gaze_value.numpy(),pred_heatmap,img_size.numpy())
+            self.eval_dist.update(disval,disval_num)
+            self.eval_mindist.update(mindistval,mindistval_num)
+            self.eval_angle.update(cosine_value)
 
-            self.eval_dist.update(distval,bs)
-            self.eval_mindist.update(mindistval,bs)
-            self.eval_angle.update(cosine_value,bs)
-            # self.eval_ap.update(auc_score,bs)
-
+        apval=ap(label_inout_list,pred_inout_list)
+        self.eval_ap.update(apval)
 
         self.model.train()
+

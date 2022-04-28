@@ -122,7 +122,7 @@ if __name__ == '__main__':
 
             pred_depth=pred_depth.astype(np.float16)
 
-            # np.save(os.path.join(output_add, index), pred_depth)
+            np.save(os.path.join(output_add, index), pred_depth)
 
             pbar.update(1)
 

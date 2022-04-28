@@ -10,15 +10,14 @@ import numpy as np
 from datetime import datetime
 
 from config import cfg
-from dammethod.dataset.gazefollow import GazeFollowLoader
+from dammethod.dataset.videoatt_target import VideogazeLoader
 
 from dammethod.utils.model_utils import init_model,setup_model,save_checkpoint,resume_checkpoint,init_checkpoint
 
-from dammethod.trainer import Trainer
-from dammethod.tester import Tester
+from dammethod.trainer_videoatt import Trainer
+from dammethod.tester_videoatt import Tester
 
 from tensorboardX import SummaryWriter
-
 
 def train_engine(opt):
 
@@ -69,7 +68,7 @@ def train_engine(opt):
         else:
             raise Exception("No such init model para")
 
-    dataloader=GazeFollowLoader(opt)
+    dataloader=VideogazeLoader(opt)
     train_loader=dataloader.train_loader
     val_loader=dataloader.val_loader
 
@@ -124,7 +123,7 @@ def test_engine(opt):
     else:
         raise Exception("Please set the model file")
 
-    dataloader = GazeFollowLoader(opt)
+    dataloader = VideogazeLoader(opt)
     val_loader=dataloader.val_loader
 
     # init trainer and validator for gazemodel
@@ -134,7 +133,6 @@ def test_engine(opt):
 
     print(eval_dist,eval_mindist,eval_auc)
 
-
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(
@@ -142,7 +140,7 @@ if __name__ == '__main__':
     )
     parser.add_argument(
         "--cfg",
-        default="config/gazefollow_cfg.yaml",
+        default="config/videoatt_cfg.yaml",
         metavar="FILE",
         help="path to config file",
         type=str,
@@ -182,7 +180,3 @@ if __name__ == '__main__':
 
     train_engine(cfg)
     # test_engine(cfg)
-
-
-
-

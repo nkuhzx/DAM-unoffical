@@ -31,7 +31,7 @@ class EyesDetector(object):
 
             pred_type=collections.namedtuple('prediction_type',['slice','color'])
             pred_types={
-                "eye1":pred_type(slice(36,42),(0.596,0.875,0.541,0.3)),
+                "eye1   ":pred_type(slice(36,42),(0.596,0.875,0.541,0.3)),
                 "eye2":pred_type(slice(42,48),(0.596,0.875,0.541,0.3))
             }
 

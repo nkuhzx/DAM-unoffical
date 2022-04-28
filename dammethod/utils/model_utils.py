@@ -22,7 +22,7 @@ def weights_init(m):
 def init_model(opt):
 
 
-    model=gazenet.DAMmodel(pretrained=True,inout_branch=opt.TRAIN)
+    model=gazenet.DAMmodel(pretrained=True,inout_branch=opt.MODEL.inout_branch)
 
     predtrained=torch.load(opt.TRAIN.gazeestipretrain)
     model.gaze_estimator.load_state_dict(predtrained)
@@ -33,7 +33,7 @@ def init_model(opt):
     model.heatmap_decoder.apply(weights_init)
 
     if opt.MODEL.inout_branch:
-        model.inout_branch.apply(weights_init)
+        model.inout_decoder.apply(weights_init)
 
 
     model=model.to(opt.OTHER.device)
@@ -47,7 +47,7 @@ def setup_model(model,opt):
     elif opt.TRAIN.criterion=="mse":
         criterion = nn.MSELoss(reduction='none')
     elif opt.TRAIN.criterion=="mixed":
-        criterion=[nn.MSELoss(reduction='none'),nn.CosineSimilarity()]
+        criterion=[nn.MSELoss(reduction='none'),nn.CosineSimilarity(),nn.BCEWithLogitsLoss()]
 
     else:
         raise NotImplemented
@@ -83,8 +83,14 @@ def save_checkpoint(model,optimizer,best_error,epoch,opt):
 
     epochnum=str(epoch)
 
-    filename='vsgia'+'_'+epochnum+'epoch.pth.tar'
+    if opt.TRAIN.stage==1:
 
+        filename='dam_gf'+'_'+epochnum+'epoch.pth.tar'
+
+    elif opt.TRAIN.stage==2:
+        filename='dam_vat'+'_'+epochnum+'epoch.pth.tar'
+    else:
+        raise NotImplemented
 
     torch.save(cur_state,os.path.join(opt.TRAIN.store,filename))
 

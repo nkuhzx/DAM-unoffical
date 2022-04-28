@@ -1,0 +1,33 @@
+DATASET:
+  root_dir: "/home/hzx/dataset/videoattentiontarget"
+  train_anno: "/home/hzx/dataset/videoattentiontarget/train_dam.txt"
+  test_anno: "/home/hzx/dataset/videoattentiontarget/test_dam.txt"
+
+  train_batch_size: 128
+  test_batch_size: 64
+
+MODEL:
+  inout_branch: True
+
+TRAIN:
+  maxlr: 1e-4
+
+  stage: 2
+
+  resume: False
+  resume_add: "/home/extend/hzx/gazetrvideo_savemodels/gazetrnet_best.pth.tar"
+
+  initmodel: True
+  initmodel_add: "/home/extend/hzx/VSGIA&ablation/damreplement/vsgia_35epoch.pth.tar"
+
+  store: "/home/extend/hzx/VSGIA&ablation/damreplement/videoatt"
+
+  save_intervel: 1
+
+  end_epoch: 21
+
+OTHER:
+
+  lossrec_every: 50
+
+  evalrec_every: 400

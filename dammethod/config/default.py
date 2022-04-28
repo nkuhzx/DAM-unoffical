@@ -59,6 +59,8 @@ _C.TRAIN.epsilion=1e-8
 _C.TRAIN.start_epoch=0
 _C.TRAIN.end_epoch=40
 
+_C.TRAIN.stage=1
+
 # input and output resolution
 _C.TRAIN.input_size=224
 _C.TRAIN.output_size=64

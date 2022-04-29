@@ -95,7 +95,7 @@ def train_engine(opt):
 
         time.sleep(0.03)
 
-        current_err,_,_=tester.test(opt)
+        current_err,_,_,_=tester.test(opt)
 
         best_error=min(current_err,best_error)
 

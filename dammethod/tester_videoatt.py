@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 import numpy as np
-from dammethod.utils.utils import AverageMeter,euclid_dist_videoatt,auc,ap
+from dammethod.utils.utils import AverageMeter,euclid_dist_videoatt,auc_videoatt,ap
 from tqdm import tqdm
 
 class Tester(object):
@@ -74,23 +74,24 @@ class Tester(object):
 
 
             # AUC
-            auc_score=auc(gaze_value.numpy(),pred_heatmap,img_size.numpy())
+            auc_score,aucval_num=auc_videoatt(gaze_value.numpy(),pred_heatmap,img_size.numpy())
 
             # mindist and avgdist
-            disval=euclid_dist_videoatt(pred_heatmap,gaze_value,type='avg')
+            disval,disval_num=euclid_dist_videoatt(pred_heatmap,gaze_value,type='avg')
 
-            mindisval = euclid_dist_videoatt(pred_heatmap, gaze_value, type='min')
+            mindisval,minidisval_num = euclid_dist_videoatt(pred_heatmap, gaze_value, type='min')
 
             label_inout_list.extend(in_out)
             pred_inout_list.extend(pred_inout)
 
-            self.dist.update(disval,inputs_size)
-            self.mindist.update(mindisval,inputs_size)
-            self.auc.update(auc_score,inputs_size)
+            self.dist.update(disval,disval_num)
+            self.mindist.update(mindisval,minidisval_num)
+            self.auc.update(auc_score,aucval_num)
 
             pbar.set_postfix(dist=self.dist.avg,
                              mindist=self.mindist.avg,
-                             auc=self.auc.avg)
+                             auc=self.auc.avg,
+                             ap=self.ap.avg)
             pbar.update(1)
 
         pbar.close()
@@ -102,5 +103,6 @@ class Tester(object):
             self.writer.add_scalar("Val_avg_dist", self.dist.avg, global_step=opt.OTHER.global_step)
             self.writer.add_scalar("Val_min_dist", self.mindist.avg, global_step=opt.OTHER.global_step)
             self.writer.add_scalar("Val_auc", self.auc.avg, global_step=opt.OTHER.global_step)
+            self.writer.add_scalar("Val_ap", self.ap.avg, global_step=opt.OTHER.global_step)
 
         return self.dist.avg,self.mindist.avg,self.auc.avg,self.ap.avg

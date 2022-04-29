@@ -10,12 +10,12 @@ MODEL:
   inout_branch: True
 
 TRAIN:
-  maxlr: 1e-4
+  maxlr: 1e-5
 
   stage: 2
 
   resume: False
-  resume_add: "/home/extend/hzx/gazetrvideo_savemodels/gazetrnet_best.pth.tar"
+  resume_add: "/home/extend/hzx/VSGIA&ablation/damreplement/vsgia_35epoch.pth.tar"
 
   initmodel: True
   initmodel_add: "/home/extend/hzx/VSGIA&ablation/damreplement/vsgia_35epoch.pth.tar"
@@ -30,4 +30,4 @@ OTHER:
 
   lossrec_every: 50
 
-  evalrec_every: 400
+  evalrec_every: 600

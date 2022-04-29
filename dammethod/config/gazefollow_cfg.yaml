@@ -21,7 +21,7 @@ TRAIN:
   initmodel: False
   initmodel_add: ""
 
-  store: "/home/extend/hzx/VSGIA&ablation/damreplement"
+  store: "/home/extend/hzx/VSGIA&ablation/damreplement/gazefollow"
 
   save_intervel: 1
 

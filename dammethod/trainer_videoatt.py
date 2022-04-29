@@ -118,7 +118,7 @@ class Trainer(object):
             # inout loss
             inout_loss=self.criterion[2](pred_inout,y_in_out.squeeze())
 
-            total_loss=10000*l2_loss#+100*lang_loss+25*inout_loss
+            total_loss=10000*l2_loss+100*lang_loss+25*inout_loss
 
             total_loss.backward()
             self.optimizer.step()
@@ -214,21 +214,26 @@ class Trainer(object):
             in_out=in_out.squeeze().numpy()
 
             gt_gazevector=gazevector.to(self.device)
-            gt_inout=in_out.to(self.device)
             pred_gazevector=outs["gazevector"]
 
             disval,disval_num = euclid_dist_videoatt(pred_heatmap, gaze_value, type='avg')
             mindistval,mindistval_num=euclid_dist_videoatt(pred_heatmap, gaze_value, type='min')
 
-            cosine_value=self.criterion[1](pred_gazevector,gt_gazevector)
-            cosine_value=torch.sum(cosine_value)/torch.sum(gt_inout)
+            if np.sum(in_out)==0:
+                cosine_value=0
+            else:
+                cosine_value=self.criterion[1](pred_gazevector,gt_gazevector)
+                cosine_value=torch.sum(cosine_value)/torch.tensor(np.sum(in_out)).to(self.device)
+
+                cosine_value=cosine_value.squeeze()
+                cosine_value=cosine_value.data.cpu().numpy()
 
             label_inout_list.extend(in_out)
             pred_inout_list.extend(pred_inout)
 
             self.eval_dist.update(disval,disval_num)
             self.eval_mindist.update(mindistval,mindistval_num)
-            self.eval_angle.update(cosine_value)
+            self.eval_angle.update(cosine_value,np.sum(in_out))
 
         apval=ap(label_inout_list,pred_inout_list)
         self.eval_ap.update(apval)

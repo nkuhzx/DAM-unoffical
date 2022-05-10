@@ -22,9 +22,10 @@ _C=CN()
 _C.DATASET=CN()
 
 _C.DATASET.root_dir = os.path.join(getRootPath(),"datasets/gazefollow")
-_C.DATASET.train_anno = os.path.join(getRootPath(),"datasets/gazefollow/train_gazefollow_dam.txt")
-_C.DATASET.test_anno = os.path.join(getRootPath(),"datasets/gazefollow/test_gazefollow_dam.txt")
+_C.DATASET.train_anno = os.path.join(getRootPath(),"datasets/gazefollow_annotations/train_annotation_dam.txt")
+_C.DATASET.test_anno = os.path.join(getRootPath(),"datasets/gazefollow_annotations/test_annotation_dam.txt")
 
+_C.DATASET.depth_dir=os.path.join(getRootPath(),"datasets/gazefollow_depthnp")
 
 # dataset loader
 _C.DATASET.load_workers=24
@@ -46,7 +47,7 @@ _C.MODEL.inout_branch=False
 _C.TRAIN=CN()
 
 # pre-trained parameters
-_C.TRAIN.gazeestipretrain=os.path.join(getRootPath(),"dammethod/modelparas/gazedirmodel.pt")
+_C.TRAIN.gazeestipretrain=os.path.join(getRootPath(),"dammethod/modelparas/pretrained.pt")
 
 _C.TRAIN.criterion="mixed"
 _C.TRAIN.optimizer="adam"
@@ -68,7 +69,7 @@ _C.TRAIN.output_size=64
 _C.TRAIN.eye_size=[36,60]
 
 # model parameters save interval and address
-_C.TRAIN.store=os.path.join(getRootPath(),"modelparas/savemodel")
+_C.TRAIN.store=os.path.join(getRootPath(),"modelparas")
 _C.TRAIN.save_intervel=1
 
 # model parameters resume and initmodel
@@ -76,7 +77,6 @@ _C.TRAIN.resume=False
 _C.TRAIN.resume_add=''
 
 _C.TRAIN.initmodel=False
-_C.TRAIN.initmodel_add=''
 
 
 # -----------------------------------------------------------------------------

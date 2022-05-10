@@ -18,14 +18,11 @@ TRAIN:
   resume: True
   resume_add: "/home/extend/hzx/VSGIA&ablation/damreplement/gazefollow/dam_gf_99epoch.pth.tar"
 
-  initmodel: False
-  initmodel_add: ""
-
-  store: "/home/extend/hzx/VSGIA&ablation/damreplement/gazefollow"
+  store: "./modelparas"
 
   save_intervel: 1
 
-  end_epoch: 71
+  end_epoch: 41
 
 OTHER:
 

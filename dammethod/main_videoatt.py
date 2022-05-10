@@ -1,9 +1,10 @@
+import os
+import sys
+sys.path.append(os.path.abspath(os.path.join(os.getcwd(),"..")))
 import torch
 import torch.backends.cudnn as cudnn
 import argparse
-import os
 import shutil
-import sys
 import random
 import time
 import numpy as np
@@ -59,14 +60,7 @@ def train_engine(opt):
         else:
             raise Exception("No such resume file")
 
-    elif opt.TRAIN.initmodel==True:
-        # print(opt.TRAIN.initmodel_add)
-        if os.path.isfile(opt.TRAIN.initmodel_add):
 
-            model = init_checkpoint(model, opt)
-
-        else:
-            raise Exception("No such init model para")
 
     dataloader=VideogazeLoader(opt)
     train_loader=dataloader.train_loader
@@ -154,7 +148,7 @@ if __name__ == '__main__':
     parser.add_argument(
         "--is_train",
         action="store_true",
-        default=True,
+        default=False,
         help="choose if train"
     )
     parser.add_argument(
@@ -169,14 +163,22 @@ if __name__ == '__main__':
         default=None,
         nargs=argparse.REMAINDER,
     )
+    parser.add_argument(
+        "--init_model",
+        default=None,
+        required=True,
+        help="set the init model weight for trained on the videoattentiontarget"
+    )
 
     args = parser.parse_args()
 
     cfg.merge_from_file(args.cfg)
     cfg.merge_from_list(args.opts)
-
+    cfg.TRAIN.initmodel=args.init_model
     cfg.OTHER.device='cuda:0' if (torch.cuda.is_available() and args.gpu) else 'cpu'
     print("The model running on {}".format(cfg.OTHER.device))
 
-    # train_engine(cfg)
-    test_engine(cfg)
+    if args.is_train:
+        train_engine(cfg)
+    elif args.is_test:
+        test_engine(cfg)

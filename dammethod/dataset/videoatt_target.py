@@ -64,7 +64,7 @@ class VideoAttTargetDataset(Dataset):
 
         self.data_dir=os.path.join(opt.DATASET.root_dir,"images")
 
-        self.depth_dir=os.path.join(opt.DATASET.root_dir,"depdam")
+        self.depth_dir=opt.DATASET.depth_dir
 
         self.df=df
 
@@ -146,6 +146,7 @@ class VideoAttTargetDataset(Dataset):
 
         img_path=os.path.join(self.data_dir,show_name,frame_scope,img_name)
         # depimg_path=os.path.join(self.depth_dir,show_name,frame_scope,img_name.replace('jpg','npy'))
+
         depimg_path = os.path.join(self.depth_dir, show_name, frame_scope, img_name+".npy")
 
         # load the image

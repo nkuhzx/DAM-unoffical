@@ -1,7 +1,8 @@
 DATASET:
-  root_dir: "/home/hzx/dataset/videoattentiontarget"
-  train_anno: "/home/hzx/dataset/videoattentiontarget/train_dam.txt"
-  test_anno: "/home/hzx/dataset/videoattentiontarget/test_dam.txt"
+  root_dir: "../datasets/videoattentiontarget"
+  train_anno: "../datasets/videotargetattention_annotations/train_annotation_dam.txt"
+  test_anno: "../datasets/videotargetattention_annotations/test_annotation_dam.txt"
+  depth_dir: "../datasets/videotargetattention_depthnp/"
 
   train_batch_size: 128
   test_batch_size: 128
@@ -14,13 +15,12 @@ TRAIN:
 
   stage: 2
 
-  resume: True
-  resume_add: "/home/extend/hzx/VSGIA&ablation/damreplement/videoatt/dam_vat_0epoch.pth.tar"
+  resume: False
+  resume_add: ""
 
-  initmodel: False
-  initmodel_add: "/home/extend/hzx/VSGIA&ablation/damreplement/videoatt/dam_videoattstart.pth.tar"
 
-  store: "/home/extend/hzx/VSGIA&ablation/damreplement/videoatt"
+
+  store: "./modelparas"
 
   save_intervel: 1
 

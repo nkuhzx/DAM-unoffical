@@ -148,7 +148,7 @@ if __name__ == '__main__':
     #
     # print(gazedirmodel)
     #
-    # checkpoint=torch.load("/home/hzx/project/DAM_process/gazeestimation/checkpoints/rt-genenet_5epoch.pth.tar")
+    # checkpoint=torch.load("/home/hzx/project/DAM_process/gazeestimation/checkpoints/gaze360_5epoch.pth.tar")
     #
     # gazedirmodel.load_state_dict(checkpoint['state_dict'])
     #

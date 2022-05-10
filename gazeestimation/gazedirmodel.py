@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 from torchvision.models import resnet18,resnet34
 import math
 
@@ -81,10 +82,10 @@ class GazeDirmodel(nn.Module):
         concat_feat=self.relu(concat_feat)
         gaze_vector=self.fc2(concat_feat)
 
-        norm = torch.norm(gaze_vector, 2, dim=1)
-        norm_=norm.clone()
-        norm_[norm_<=0]=1.0
-        norm_gazevector=gaze_vector/norm_.view([-1,1])
+        norm_gazevector=F.normalize(gaze_vector,p=2,dim=1)
+        # norm_=norm.clone()
+        # norm_[norm_<=0]=1.0
+        # norm_gazevector=gaze_vector/norm_.view([-1,1])
 
         return {"gaze_vector":norm_gazevector,
                 "head_pos":head_pos}

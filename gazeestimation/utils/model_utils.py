@@ -77,7 +77,7 @@ def save_checkpoint(model,optimizer,best_error,epoch,opt):
         'optimizer':optimizer.state_dict()
     }
 
-    save_filename='rt-genenet'+'_'+str(epoch)+'epoch.pth.tar'
+    save_filename='gaze360'+'_'+str(epoch)+'epoch.pth.tar'
 
     if os.path.exists(opt.store)==False:
 

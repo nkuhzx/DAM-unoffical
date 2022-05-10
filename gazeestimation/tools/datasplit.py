@@ -1,14 +1,29 @@
+import sys
+import os
+# sys.path.append(os.path.abspath(os.path.join(os.getcwd(),"..")))
+# print(sys.path)
 import torch
 from torch.utils.data import Dataset
 import scipy.io as scio
-import os
-import cv2
+
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
 
-gaze360mat_path="/home/nku120/HZX/dataset/Gaze360/metadata.mat"
-root_path="/home/nku120/HZX/dataset/Gaze360/imgs"
+def getRootPath():
+
+    rootPath=os.path.dirname(os.path.abspath(__file__))
+
+    rootPath=os.path.dirname(rootPath)
+    rootPath=os.path.dirname(rootPath)
+
+    return rootPath
+
+proj_path=getRootPath()
+
+gaze360mat_path=os.path.join(proj_path,"datasets/Gaze360/metadata.mat")
+root_path=os.path.join(proj_path,"datasets/Gaze360/imgs")
+save_path=os.path.join(proj_path,"datasets/Gaze360_annotations")
 
 cropType='head'
 
@@ -132,17 +147,11 @@ if __name__ == '__main__':
         else:
             raise NotImplemented
 
+    if not os.path.exists(save_path):
+        os.makedirs(save_path)
 
-    train_pd.to_csv('train_eye.txt',header=None,index=False,float_format='%.15f')
+    train_pd.to_csv(os.path.join(save_path,'train_eye.txt'),header=None,index=False,float_format='%.15f')
 
-    valid_pd.to_csv('val_eye.txt',header=None,index=False,float_format='%.15f')
+    valid_pd.to_csv(os.path.join(save_path,'val_eye.txt') ,header=None,index=False,float_format='%.15f')
 
-    test_pd.to_csv('test_eye.txt',header=None,index=False,float_format='%.15f')
-
-
-
-
-
-
-
-
+    test_pd.to_csv(os.path.join(save_path,'test_eye.txt'),header=None,index=False,float_format='%.15f')

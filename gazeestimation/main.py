@@ -1,13 +1,11 @@
 import os
 import sys
+sys.path.append(os.path.abspath(os.path.join(os.getcwd(),"..")))
 import random
 import numpy as np
 
 import torch
-import torch.nn as nn
-
 import torch.backends.cudnn as cudnn
-from torch.utils.data import DataLoader
 import argparse
 
 from gazeestimation.gaze360 import Gaze360Loader
@@ -104,10 +102,10 @@ if __name__ == '__main__':
 
     parser=argparse.ArgumentParser()
 
-    parser.add_argument("--root_dir", default="/home/nku120/HZX/dataset/Gaze360/imgs", help="path to train csv", type=str,metavar="FILE")
-    parser.add_argument("--train_csv", default="./tools/train_eye.txt", help="path to train csv", type=str,metavar="FILE")
-    parser.add_argument("--val_csv", default="./tools/val_eye.txt", help="path to validation csv", type=str, metavar="FILE")
-    parser.add_argument("--test_csv",default="./tools/test_eye.txt", help="path to test csv", type=str, metavar="FILE")
+    parser.add_argument("--root_dir", default="../datasets/Gaze360/imgs", help="path to train csv", type=str,metavar="FILE")
+    parser.add_argument("--train_csv", default="../datasets/Gaze360_annotations/train_eye.txt", help="path to train csv", type=str,metavar="FILE")
+    parser.add_argument("--val_csv", default="../datasets/Gaze360_annotations/val_eye.txt", help="path to validation csv", type=str, metavar="FILE")
+    parser.add_argument("--test_csv",default="../datasets/Gaze360_annotations/test_eye.txt", help="path to test csv", type=str, metavar="FILE")
 
     parser.add_argument("--num_worker",default=12,help="choose the num_worker",type=int)
     parser.add_argument("--seed",default=1234,help="choose the random seed",type=int)
@@ -118,7 +116,7 @@ if __name__ == '__main__':
     parser.add_argument("--val_batch_size",default=64,help="choose the batch size for validation",type=int)
     parser.add_argument("--test_batch_size",default=64,help="choose the batch size for test",type=int)
 
-    parser.add_argument("--end_epoch",default=10,help="choose the batch size for test",type=int)
+    parser.add_argument("--end_epoch",default=4,help="choose the batch size for test",type=int)
 
     parser.add_argument("--criterion_train",default="mixed",help="choose the criterion for train",type=str)
 
@@ -132,7 +130,7 @@ if __name__ == '__main__':
     parser.add_argument("--save_interval",default=1,help="choose the eval interval for record",type=int)
     parser.add_argument("--store",default="./checkpoints",help="choose the dir to store model parameters",type=str)
 
-    parser.add_argument("--model_path",default="./checkpoints/rt-genenet_5epoch.pth.tar",help="choose the dir to store model parameters",type=str)
+    parser.add_argument("--model_path",default="./checkpoints/gaze360_5epoch.pth.tar",help="choose the dir to store model parameters",type=str)
 
 
     parser.add_argument("--input_size",default=224,help="choose the input size for model",type=int)
@@ -150,8 +148,6 @@ if __name__ == '__main__':
         args.device="cpu"
 
     print("Device: {}".format(args.device))
-
-    args.is_train=False
 
     if args.is_train:
 

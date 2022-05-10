@@ -24,13 +24,19 @@ def init_model(opt):
 
     model=gazenet.DAMmodel(pretrained=True,inout_branch=opt.MODEL.inout_branch)
 
-    predtrained=torch.load(opt.TRAIN.gazeestipretrain)
-    model.gaze_estimator.load_state_dict(predtrained)
-    # gaze360_pretrained=torch.load(opt.TRAIN.headpretrain)
-    # gaze360_pretrained["conv1.weight"]=torch.zeros(64,4,7,7)
-    # model.head_backbone.load_state_dict(gaze360_pretrained)
-    model.backbone.conv1.apply(weights_init)
-    model.heatmap_decoder.apply(weights_init)
+    if not opt.TRAIN.initmodel:
+        predtrained=torch.load(opt.TRAIN.gazeestipretrain)
+        model.gaze_estimator.load_state_dict(predtrained)
+
+        model.backbone.conv1.apply(weights_init)
+        model.heatmap_decoder.apply(weights_init)
+    else:
+        model_dict = model.state_dict()
+        init_dict = torch.load(opt.TRAIN.initmodel)["state_dict"]
+
+        for k, v in init_dict.items():
+            model_dict[k]=v
+        model.load_state_dict(model_dict)
 
     if opt.MODEL.inout_branch:
         model.inout_decoder.apply(weights_init)

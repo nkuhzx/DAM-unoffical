@@ -1,9 +1,10 @@
+import os
+import sys
+sys.path.append(os.path.abspath(os.path.join(os.getcwd(),"..")))
 import torch
 import torch.backends.cudnn as cudnn
 import argparse
-import os
 import shutil
-import sys
 import random
 import time
 import numpy as np
@@ -133,8 +134,7 @@ def test_engine(opt):
 
     eval_dist,eval_mindist,eval_auc = tester.test(opt)
 
-    print(eval_dist,eval_mindist,eval_auc)
-
+    print("Eval Avg dist.: {} | Eval Min dist.:{} | Eval AUC :{}".format(eval_dist,eval_mindist,eval_auc))
 
 if __name__ == '__main__':
 
@@ -157,7 +157,7 @@ if __name__ == '__main__':
     parser.add_argument(
         "--is_train",
         action="store_true",
-        default=True,
+        default=False,
         help="choose if train"
     )
     parser.add_argument(
@@ -181,8 +181,11 @@ if __name__ == '__main__':
     cfg.OTHER.device='cuda:0' if (torch.cuda.is_available() and args.gpu) else 'cpu'
     print("The model running on {}".format(cfg.OTHER.device))
 
-    # train_engine(cfg)
-    test_engine(cfg)
+
+    if args.is_train:
+        train_engine(cfg)
+    elif args.is_test:
+        test_engine(cfg)
 
 
 

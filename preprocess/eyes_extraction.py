@@ -6,6 +6,7 @@ import pandas as pd
 import os
 from tqdm import tqdm
 import cv2
+from preprocess.utils import getRootPath
 
 class EyesDetector(object):
 
@@ -199,6 +200,143 @@ class EyesDetector(object):
                 r_eye_coord=list(r_eye_coord.astype(int))
 
         return l_eye_coord,r_eye_coord
+
+
+def extracteye_gazefollow(type="train"):
+
+    proj_path=getRootPath()
+
+    eye_detector=EyesDetector()
+
+    detect_eye_pd=pd.DataFrame(columns={"l_eye_xmin","l_eye_ymin","l_eye_xmax","l_eye_ymax",
+                            "r_eye_xmin","r_eye_ymin","r_eye_xmax","r_eye_ymax"})
+
+    root_dir=os.path.join(proj_path,"datasets/gazefollow/")
+
+    save_path = os.path.join(proj_path, "datasets/gazefollow_annotations/eye_coord_{}.txt".format(type))
+
+    if type=="train":
+
+        pd_path=os.path.join(os.path.join(proj_path,"datasets/gazefollow_annotations/gf_train_anno.txt"))
+
+        anno_pd = pd.read_csv(pd_path)
+
+    elif type=="test":
+
+        pd_path=os.path.join(os.path.join(proj_path,"datasets/gazefollow_annotations/gf_test_anno.txt"))
+
+        anno_pd = pd.read_csv(pd_path)
+
+        anno_pd.drop_duplicates(subset=['rgb_path'], inplace=True, keep='first')
+
+    pbar=tqdm(total=len(anno_pd))
+
+    for index ,row in anno_pd.iterrows():
+
+        head_loc=row["head_bbox_x_min":"head_bbox_y_max"]
+        head_loc=np.array(head_loc).astype(int)
+
+        org_rgb_path=row["rgb_path"]
+        # load the information
+        rgb_path=os.path.join(root_dir,row["rgb_path"])
+
+        head_w=head_loc[2]-head_loc[0]
+        head_h=head_loc[3]-head_loc[1]
+
+        rgb_img=cv2.imread(rgb_path)
+
+        head_img=rgb_img[head_loc[1]:head_loc[3],head_loc[0]:head_loc[2]]
+
+        l_eye,r_eye=eye_detector.second_check(head_img)
+        # cv2.imshow("head_img",head_img)
+        # cv2.waitKey(100)
+
+        s=pd.Series({
+            "l_eye_xmin":l_eye[0] ,
+            "l_eye_ymin":l_eye[2],
+            "l_eye_xmax":l_eye[1],
+            "l_eye_ymax":l_eye[3],
+            "r_eye_xmin":r_eye[0],
+            "r_eye_ymin":r_eye[2],
+            "r_eye_xmax":r_eye[1],
+            "r_eye_ymax":r_eye[3]
+        })
+
+        detect_eye_pd= detect_eye_pd.append(s,ignore_index=True)
+
+        detect_eye_pd=detect_eye_pd[["l_eye_xmin","l_eye_ymin","l_eye_xmax","l_eye_ymax",
+                            "r_eye_xmin","r_eye_ymin","r_eye_xmax","r_eye_ymax"]]
+
+        if index%10000==0 and index!=0:
+
+            detect_eye_pd.to_csv(save_path, index=False)
+        # print(head_loc,head_h,head_w)
+        pbar.update(1)
+
+    pbar.close()
+
+    detect_eye_pd.to_csv(save_path,index=False)
+
+def extracteye_videotargetatt(type="train"):
+
+    proj_path=getRootPath()
+
+    eye_detector=EyesDetector()
+
+    root_dir=os.path.join(proj_path,"datasets/videoattentiontarget/images")
+
+    save_path=os.path.join(proj_path, "datasets/videotargetattention_annotations/eye_coord_{}.txt".format(type))
+    # read the train.txt
+    if type=="train":
+
+        anno_pd=pd.read_csv(os.path.join(proj_path,"datasets/videotargetattention_annotations/vat_train_anno.txt"))
+    else:
+        anno_pd=pd.read_csv(os.path.join(proj_path,"datasets/videotargetattention_annotations/vat_test_anno.txt"))
+
+
+    detect_eye_pd=pd.DataFrame(columns={"l_eye_xmin","l_eye_ymin","l_eye_xmax","l_eye_ymax",
+                            "r_eye_xmin","r_eye_ymin","r_eye_xmax","r_eye_ymax"})
+
+    pbar=tqdm(total=len(anno_pd))
+
+    for index, row in anno_pd.iterrows():
+
+        head_loc=row["x_min":"y_max"]
+        head_loc=np.array(head_loc).astype(int)
+
+        rgb_path=os.path.join(root_dir,row["show_name"],row["frame_scope"],row["img_name"])
+
+        rgb_img=cv2.imread(rgb_path)
+
+        head_img_org=rgb_img[head_loc[1]:head_loc[3],head_loc[0]:head_loc[2]]
+
+        l_eye,r_eye=eye_detector.all_process(head_img_org)
+
+        s=pd.Series({
+            "l_eye_xmin":l_eye[0] ,
+            "l_eye_ymin":l_eye[2],
+            "l_eye_xmax":l_eye[1],
+            "l_eye_ymax":l_eye[3],
+            "r_eye_xmin":r_eye[0],
+            "r_eye_ymin":r_eye[2],
+            "r_eye_xmax":r_eye[1],
+            "r_eye_ymax":r_eye[3]
+        })
+
+
+        detect_eye_pd= detect_eye_pd.append(s,ignore_index=True)
+
+        detect_eye_pd=detect_eye_pd[["l_eye_xmin","l_eye_ymin","l_eye_xmax","l_eye_ymax",
+                            "r_eye_xmin","r_eye_ymin","r_eye_xmax","r_eye_ymax"]]
+
+        if index%10000==0 and index!=0:
+            detect_eye_pd.to_csv(save_path.format(type), index=False)
+
+        pbar.update(1)
+    pbar.close()
+
+    detect_eye_pd.to_csv(save_path.format(type), index=False)
+
 
 
 

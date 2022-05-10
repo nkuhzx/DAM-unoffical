@@ -64,7 +64,7 @@ class GazeFollowDataset(Dataset):
         else:
             df = pd.read_csv(csv_path, sep=',', index_col=False, encoding="utf-8-sig")
             df = df[df['in_or_out'] != -1]  # only use "in" or "out "gaze. (-1 is invalid, 0 is out gaze)
-            df = df[df['type']==0]
+
 
             df.reset_index(inplace=True)
             self.y_train = df[['gaze_x','gaze_y', 'in_or_out','id']]
@@ -73,6 +73,7 @@ class GazeFollowDataset(Dataset):
             self.length = len(df)
 
         self.data_dir = opt.DATASET.root_dir
+        self.depth_dir=opt.DATASET.depth_dir
 
         transform_list = []
         transform_list.append(transforms.Resize((opt.TRAIN.input_size, opt.TRAIN.input_size)))
@@ -189,11 +190,7 @@ class GazeFollowDataset(Dataset):
             reye_img=img.crop((int(reye_loc[0]), int(reye_loc[1]), int(reye_loc[2]), int(reye_loc[3])))
 
         # load the depth img
-        depth_path_list=depth_path.split("/")
-        depth_path_list[0]=depth_path_list[0]+'_dam'
-        depth_path='/'.join(depth_path_list)
-
-        depthimg=np.load(os.path.join(self.data_dir,depth_path))
+        depthimg=np.load(os.path.join(self.depth_dir,depth_path))
         depthimg=depthimg.astype(np.float32)
 
 

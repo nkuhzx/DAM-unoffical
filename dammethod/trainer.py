@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import numpy as np
 from dammethod.utils.utils import AverageMeter, MovingAverageMeter, euclid_dist,auc
+from dammethod.utils.model_utils import save_checkpoint
 from tqdm import tqdm
 
 
@@ -34,6 +35,8 @@ class Trainer(object):
 
         self.opt = opt
         self.writer = writer
+
+        self.best_error=100000
 
     def get_best_error(self, bs_error):
 
@@ -133,6 +136,10 @@ class Trainer(object):
             if (i % opt.OTHER.evalrec_every == 0 and i > 0):
 
                 self.valid(self.opt,epoch)
+
+                if self.eval_dist.avg<self.best_error:
+                    self.best_error=self.eval_dist.avg
+                    save_checkpoint(self.model, self.optimizer, self.best_error, 99, opt)
 
                 self.writer.add_scalar("Val_avg_dist", self.eval_dist.avg, global_step=opt.OTHER.global_step)
                 self.writer.add_scalar("Val_min_dist", self.eval_mindist.avg, global_step=opt.OTHER.global_step)

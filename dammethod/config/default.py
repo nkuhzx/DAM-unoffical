@@ -22,8 +22,8 @@ _C=CN()
 _C.DATASET=CN()
 
 _C.DATASET.root_dir = os.path.join(getRootPath(),"datasets/gazefollow")
-_C.DATASET.train_anno = os.path.join(getRootPath(),"datasets/gazefollow/train_annotations_dam.txt")
-_C.DATASET.test_anno = os.path.join(getRootPath(),"datasets/gazefollow/test_annotations_dam.txt")
+_C.DATASET.train_anno = os.path.join(getRootPath(),"datasets/gazefollow/train_gazefollow_dam.txt")
+_C.DATASET.test_anno = os.path.join(getRootPath(),"datasets/gazefollow/test_gazefollow_dam.txt")
 
 
 # dataset loader

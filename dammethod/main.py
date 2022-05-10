@@ -19,6 +19,7 @@ from dammethod.tester import Tester
 
 from tensorboardX import SummaryWriter
 
+os.environ['CUDA_VISIBLE_DEVICES'] = '1'
 
 def train_engine(opt):
 
@@ -180,8 +181,8 @@ if __name__ == '__main__':
     cfg.OTHER.device='cuda:0' if (torch.cuda.is_available() and args.gpu) else 'cpu'
     print("The model running on {}".format(cfg.OTHER.device))
 
-    train_engine(cfg)
-    # test_engine(cfg)
+    # train_engine(cfg)
+    test_engine(cfg)
 
 
 

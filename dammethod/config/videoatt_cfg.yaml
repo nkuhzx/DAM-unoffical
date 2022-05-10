@@ -4,27 +4,27 @@ DATASET:
   test_anno: "/home/hzx/dataset/videoattentiontarget/test_dam.txt"
 
   train_batch_size: 128
-  test_batch_size: 64
+  test_batch_size: 128
 
 MODEL:
   inout_branch: True
 
 TRAIN:
-  maxlr: 1e-5
+  maxlr: 1e-4
 
   stage: 2
 
-  resume: False
-  resume_add: "/home/extend/hzx/VSGIA&ablation/damreplement/vsgia_35epoch.pth.tar"
+  resume: True
+  resume_add: "/home/extend/hzx/VSGIA&ablation/damreplement/videoatt/dam_vat_0epoch.pth.tar"
 
-  initmodel: True
-  initmodel_add: "/home/extend/hzx/VSGIA&ablation/damreplement/vsgia_35epoch.pth.tar"
+  initmodel: False
+  initmodel_add: "/home/extend/hzx/VSGIA&ablation/damreplement/videoatt/dam_videoattstart.pth.tar"
 
   store: "/home/extend/hzx/VSGIA&ablation/damreplement/videoatt"
 
   save_intervel: 1
 
-  end_epoch: 21
+  end_epoch: 10
 
 OTHER:
 

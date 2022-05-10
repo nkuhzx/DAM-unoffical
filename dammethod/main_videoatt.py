@@ -129,9 +129,9 @@ def test_engine(opt):
     # init trainer and validator for gazemodel
     tester=Tester(gazemodel,criterion,val_loader,opt,writer=None)
 
-    eval_dist,eval_mindist,eval_auc = tester.test(opt)
+    eval_dist,eval_mindist,eval_auc,eval_ap = tester.test(opt)
 
-    print(eval_dist,eval_mindist,eval_auc)
+    print(eval_dist,eval_mindist,eval_auc,eval_ap)
 
 if __name__ == '__main__':
 
@@ -178,5 +178,5 @@ if __name__ == '__main__':
     cfg.OTHER.device='cuda:0' if (torch.cuda.is_available() and args.gpu) else 'cpu'
     print("The model running on {}".format(cfg.OTHER.device))
 
-    train_engine(cfg)
-    # test_engine(cfg)
+    # train_engine(cfg)
+    test_engine(cfg)

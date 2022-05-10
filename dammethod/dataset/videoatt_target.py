@@ -202,6 +202,8 @@ class VideoAttTargetDataset(Dataset):
 
                 gaze_x, gaze_y = gaze_x / width, gaze_y / height
 
+                head_x, head_y = head_x / float(width), \
+                                 head_y / float(height)
 
         else:
 
@@ -444,7 +446,7 @@ class VideoAttTargetDataset(Dataset):
             # ax[0][1].scatter(gaze_outpix[0],gaze_outpix[1])
             # ax[0][1].scatter(face_outpix[0],face_outpix[1])
 
-            print(gv_field.shape)
+            print('gv_field shape',gv_field.shape)
             gv_field_show=gv_field.permute([1,2,0]).reshape(-1,2)
             gaze_vector_show=gaze_vector.unsqueeze(1)
 

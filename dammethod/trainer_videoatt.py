@@ -112,8 +112,8 @@ class Trainer(object):
 
             # angle loss
             lang_loss=1-self.criterion[1](pred_gvector,y_gazevector)
+            lang_loss=torch.mul(lang_loss,y_in_out)
             lang_loss=torch.sum(lang_loss)/torch.sum(y_in_out)
-            lang_loss=torch.sum(lang_loss)/bs
 
             # inout loss
             inout_loss=self.criterion[2](pred_inout,y_in_out.squeeze())
@@ -223,6 +223,7 @@ class Trainer(object):
                 cosine_value=0
             else:
                 cosine_value=self.criterion[1](pred_gazevector,gt_gazevector)
+                cosine_value=torch.mul(cosine_value,torch.tensor(in_out).to(self.device))
                 cosine_value=torch.sum(cosine_value)/torch.tensor(np.sum(in_out)).to(self.device)
 
                 cosine_value=cosine_value.squeeze()

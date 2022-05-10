@@ -81,14 +81,14 @@ def euclid_dist(pred,target,type='avg'):
         valid_target=valid_target.numpy()
         sample_dist=valid_target-norm_p
 
-        sample_dist = np.sqrt(np.power(sample_dist[:, 0], 2) + np.power(sample_dist[:, 1], 2))
+        sample_dist =np.linalg.norm(sample_dist,axis=1) #np.sqrt(np.power(sample_dist[:, 0], 2) + np.power(sample_dist[:, 1], 2))
 
 
 
         if type=='avg':
             mean_gt_gaze = np.mean(valid_target, 0)
             sample_avg_dist = mean_gt_gaze - norm_p
-            sample_avg_dist = np.sqrt(np.power(sample_avg_dist[0], 2) + np.power(sample_avg_dist[1], 2))
+            sample_avg_dist = np.linalg.norm(sample_avg_dist)#np.sqrt(np.power(sample_avg_dist[0], 2) + np.power(sample_avg_dist[1], 2))
 
             sample_dist=float(sample_avg_dist)
         elif type=='min':

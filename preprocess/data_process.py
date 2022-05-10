@@ -10,6 +10,57 @@ import glob
 from preprocess.depth_estimation import DepthEstimator,read_image
 from preprocess.eyes_extraction import EyesDetector
 
+def concat_annotation(type="train"):
+
+    if type=="train":
+
+        org_train_pd=pd.read_csv("/home/nku120/HZX/dataset_process/DAM_process/train_annotations_revised.txt")
+
+
+        eye_train_pd=pd.read_csv("/home/nku120/HZX/dataset_process/DAM_process/preprocess/eye_coord_train.txt")
+        eye_train_pd=eye_train_pd.iloc[:,1:]
+
+        dam_train_pd=pd.concat([org_train_pd,eye_train_pd],axis=1)
+
+
+        dam_train_pd.to_csv("./train_annotation_dam.txt",index=False)
+
+    elif type=="test":
+
+        org_test_pd=pd.read_csv("/home/nku120/HZX/dataset_process/DAM_process/test_annotations_revised.txt")
+
+        value_counts=org_test_pd['rgb_path'].value_counts()
+
+        eye_test_pd=pd.read_csv("/home/nku120/HZX/dataset_process/DAM_process/preprocess/eye_coord_test.txt")
+
+
+
+        all_df=[]
+        for i in range(len(eye_test_pd)):
+
+            rgb_path=eye_test_pd.iloc[i,0]
+
+            cur_series=eye_test_pd.iloc[i:i+1,:]
+            cur_sumvalue=value_counts[rgb_path]
+
+            temp_df=pd.DataFrame(np.repeat(cur_series.values,cur_sumvalue,axis=0))
+            temp_df.columns=cur_series.columns
+            all_df.append(temp_df)
+
+        eye_test_pd=pd.concat(all_df,axis=0)
+
+        eye_test_pd.reset_index(inplace=True,drop=True)
+        eye_test_pd=eye_test_pd.iloc[:,1:]
+
+        dam_test_pd = pd.concat([org_test_pd, eye_test_pd], axis=1)
+
+        dam_test_pd.to_csv("./test_annotation_dam.txt", index=False)
+
+
+
+
+    else:
+        raise NotImplemented
 
 def concat_annotation(dataset="gazefollow",type="train"):
 
@@ -39,11 +90,16 @@ def extracteye_gazefollow(type="train"):
     if type=="train":
 
         pd_path=os.path.join("../anno_files/gazefollow/train.txt")
+
+        anno_pd = pd.read_csv(pd_path)
+
     elif type=="test":
 
         pd_path=os.path.join("../anno_files/gazefollow/test.txt")
 
-    anno_pd=pd.read_csv(pd_path)
+        anno_pd = pd.read_csv(pd_path)
+
+        anno_pd.drop_duplicates(subset=['rgb_path'], inplace=True, keep='first')
 
     pbar=tqdm(total=len(anno_pd))
 

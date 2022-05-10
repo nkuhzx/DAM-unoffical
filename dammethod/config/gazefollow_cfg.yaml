@@ -15,8 +15,8 @@ TRAIN:
 
   stage: 1
 
-  resume: True
-  resume_add: "/home/extend/hzx/VSGIA&ablation/damreplement/gazefollow/dam_gf_99epoch.pth.tar"
+  resume: False
+  resume_add: ""
 
   store: "./modelparas"
 

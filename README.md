@@ -109,5 +109,5 @@ python main_videoatt.py --is_test
 ### Evaluation without training
 We also provide the model weights for evaluation
 1. [model weight for GazeFollow](https://drive.google.com/file/d/1CUejYe6JA7xOyv_ZZM_c-gB-O2iQu49q/view?usp=sharing)
-2. [model_weight for VideoAttentionTarget]()
+2. [model_weight for VideoAttentionTarget](https://drive.google.com/file/d/1mOGMCqvwdmEpL8_TYFqrUXUwWVrjNtk1/view?usp=sharing)
 

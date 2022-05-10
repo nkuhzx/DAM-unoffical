@@ -145,9 +145,9 @@ class VideoAttTargetDataset(Dataset):
         head_x,head_y= (x_min+x_max)/2., (y_min+y_max)/2.
 
         img_path=os.path.join(self.data_dir,show_name,frame_scope,img_name)
-        # depimg_path=os.path.join(self.depth_dir,show_name,frame_scope,img_name.replace('jpg','npy'))
+        depimg_path=os.path.join(self.depth_dir,show_name,frame_scope,img_name.replace('jpg','npy'))
 
-        depimg_path = os.path.join(self.depth_dir, show_name, frame_scope, img_name+".npy")
+        # depimg_path = os.path.join(self.depth_dir, show_name, frame_scope, img_name+".npy")
 
         # load the image
         img=Image.open(img_path)
@@ -395,80 +395,6 @@ class VideoAttTargetDataset(Dataset):
 
         gaze_vector=torch.from_numpy(gaze_vector)
 
-
-
-        # for show
-        if self.imshow:
-
-            def unnorm(img, mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]):
-                std = np.array(std).reshape(3, 1, 1)
-                mean = np.array(mean).reshape(3, 1, 1)
-                return img * std + mean
-
-            figure,ax=plt.subplots(3,4)
-            figure.set_size_inches(20 ,8)
-
-            outimg=unnorm(img.numpy()) * 255
-            outimg=np.clip(outimg,0,255)
-            outimg=outimg.astype(np.uint8)
-
-            leyeimg=unnorm(l_eye.numpy()) * 255
-            leyeimg=np.clip(leyeimg,0,255)
-            leyeimg=leyeimg.astype(np.uint8)
-
-            reyeimg=unnorm(r_eye.numpy()) * 255
-            reyeimg=np.clip(reyeimg,0,255)
-            reyeimg=reyeimg.astype(np.uint8)
-
-            eyes_outpix=[head_x*self.input_size,head_y*self.input_size]
-            eyes_pixel=[org_eyex,org_eyey]
-
-            if gaze_inside:
-                gaze_outpix = [gaze_x * self.input_size, gaze_y * self.input_size]
-                gaze_pixel=[org_gazex,org_gazey]
-            else:
-                gaze_outpix=[0,0]
-                gaze_pixel=[0,0]
-
-
-            ax[0][0].imshow(np.transpose(outimg, (1, 2, 0)))
-
-            print(eyes_outpix,gaze_outpix,gaze_inside)
-            ax[0][0].scatter(eyes_outpix[0],eyes_outpix[1])
-            ax[0][0].scatter(gaze_outpix[0],gaze_outpix[1])
-
-
-            mmap_show=mmap.permute([1,2,0])
-
-            ax[0][1].imshow(mmap_show[:,:,0],cmap='jet')
-            ax[0][2].imshow(mmap_show[:,:,1],cmap='jet')
-            ax[0][3].imshow(mmap_show[:, :, 2], cmap='jet')
-            # ax[0][1].scatter(eyes_outpix[0],eyes_outpix[1])
-            # ax[0][1].scatter(gaze_outpix[0],gaze_outpix[1])
-            # ax[0][1].scatter(face_outpix[0],face_outpix[1])
-
-            print('gv_field shape',gv_field.shape)
-            gv_field_show=gv_field.permute([1,2,0]).reshape(-1,2)
-            gaze_vector_show=gaze_vector.unsqueeze(1)
-
-            print(gv_field_show.shape,gaze_vector_show.shape)
-            # print(gv_field_show.shape,gaze_vector_show.shape)
-            mul_res=torch.matmul(gv_field_show.float(),gaze_vector_show.float())
-            mul_res=mul_res.reshape([224,224])
-            ax[1][1].imshow(mul_res,cmap='jet')
-
-            ax[1][0].imshow(org_show)
-            ax[1][0].scatter(eyes_pixel[0],eyes_pixel[1])
-            ax[1][0].scatter(gaze_pixel[0],gaze_pixel[1])
-
-            # ax[1][2].imshow(xz_heatmap.squeeze(),cmap='gray')
-
-            ax[1][2].imshow(gaze_heatmap,cmap='jet')
-
-            ax[2][0].imshow(np.transpose(leyeimg, (1, 2, 0)))
-            ax[2][1].imshow(np.transpose(reyeimg, (1, 2, 0)))
-
-            plt.show()
 
         all_data={}
 
